@@ -1,0 +1,57 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: >
+  Arquitectura de microservicios para un sistema documental en la nube,
+  modelada mediante AWS CloudFormation con fines académicos y utilizada
+  para la evaluación arquitectónica mediante AWS Well-Architected Framework
+  y el método ATAM.
+
+Resources:
+
+  ApiGatewayDocumentos:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Name: SistemaDocumentalAPI
+      Description: API de acceso al sistema documental
+
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: LambdaGestionDocumentosRole
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+
+  GestionDocumentosFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: GestionDocumentos
+      Runtime: python3.10
+      Handler: index.handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Timeout: 30
+      MemorySize: 512
+
+  DocumentosBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: sistema-documental-archivos
+      VersioningConfiguration:
+        Status: Enabled
+
+  MetadataDocumentosTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: MetadataDocumentos
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: idDocumento
+          AttributeType: S
+      KeySchema:
+        - AttributeName: idDocumento
+          KeyType: HASH
