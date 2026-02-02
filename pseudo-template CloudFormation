@@ -1,28 +1,76 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Description: >
-  Arquitectura de microservicios para un sistema documental en AWS.
+  Arquitectura de microservicios para un sistema documental en la nube,
+  modelada mediante AWS CloudFormation como apoyo a la evaluación
+  arquitectónica con AWS Well-Architected Framework.
 
 Resources:
 
-  ApiGateway:
+  ApiGatewayDocumentos:
     Type: AWS::ApiGateway::RestApi
     Properties:
       Name: SistemaDocumentalAPI
+      Description: API de acceso al sistema de gestión documental
 
-  DocumentoFunction:
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: LambdaGestionDocumentosRole
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+
+  GestionDocumentosFunction:
     Type: AWS::Lambda::Function
     Properties:
       FunctionName: GestionDocumentos
       Runtime: python3.10
       Handler: index.handler
-      Role: !GetAtt LambdaRole.Arn
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Timeout: 30
+      MemorySize: 512
+      Description: >
+        Microservicio encargado del registro, versionado,
+        consulta y eliminación de documentos.
 
   DocumentosBucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: documentos-sistema-favaye
+      BucketName: sistema-documental-archivos
+      VersioningConfiguration:
+        Status: Enabled
 
-  MetadataTable:
+  MetadataDocumentosTable:
     Type: AWS::DynamoDB::Table
     Properties:
       TableName: MetadataDocumentos
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: idDocumento
+          AttributeType: S
+      KeySchema:
+        - AttributeName: idDocumento
+          KeyType: HASH
+
+  AuditoriaTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: AuditoriaDocumentos
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: idAuditoria
+          AttributeType: S
+      KeySchema:
+        - AttributeName: idAuditoria
+          KeyType: HASH
+
+  NotificacionesTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      TopicName: AlertasDocumentales
