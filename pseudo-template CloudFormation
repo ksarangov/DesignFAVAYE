@@ -1,0 +1,28 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: >
+  Arquitectura de microservicios para un sistema documental en AWS.
+
+Resources:
+
+  ApiGateway:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Name: SistemaDocumentalAPI
+
+  DocumentoFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: GestionDocumentos
+      Runtime: python3.10
+      Handler: index.handler
+      Role: !GetAtt LambdaRole.Arn
+
+  DocumentosBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: documentos-sistema-favaye
+
+  MetadataTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: MetadataDocumentos
