@@ -1,0 +1,11 @@
+# Archivo de parámetros de despliegue
+# Uso académico – No destinado a despliegue productivo
+
+Environment: academic
+ProjectName: SistemaDocumentalFAVAYE
+Region: us-east-1
+
+Resources:
+  ApiGatewayName: SistemaDocumentalAPI
+  DocumentsBucketName: sistema-documental-archivos
+  MetadataTableName: MetadataDocumentos
