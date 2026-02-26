@@ -15,4 +15,4 @@
 ![Diagrama de Clases](Diagrama_clases.png)
 
 ### Diagrama de Microservicios
-![Diagrama de Microservicios](Diagrama_microservicios.png)
+![Diagrama de Microservicios](Diagrama_microservicios2.png)
